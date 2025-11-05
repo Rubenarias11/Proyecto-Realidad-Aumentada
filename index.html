@@ -4,6 +4,43 @@
     <title>PRUEBA FINAL CON MARCADOR HIRO 4</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <script>
+      // Componente personalizado para rotar el modelo con el dedo
+      AFRAME.registerComponent('touch-rotate', {
+        schema: {
+          speed: { type: 'number', default: 2 } // velocidad de rotación
+        },
+        init: function () {
+          this.isDragging = false;
+          this.previousX = 0;
+          const el = this.el;
+
+          // Cuando empieza el toque
+          this.el.sceneEl.canvas.addEventListener('touchstart', (e) => {
+            this.isDragging = true;
+            this.previousX = e.touches[0].clientX;
+          });
+
+          // Cuando mueve el dedo
+          this.el.sceneEl.canvas.addEventListener('touchmove', (e) => {
+            if (!this.isDragging) return;
+            const currentX = e.touches[0].clientX;
+            const deltaX = currentX - this.previousX;
+            this.previousX = currentX;
+
+            const rotation = el.getAttribute('rotation');
+            rotation.y += deltaX * 0.5; // ajustá la sensibilidad acá
+            el.setAttribute('rotation', rotation);
+          });
+
+          // Cuando levanta el dedo
+          this.el.sceneEl.canvas.addEventListener('touchend', () => {
+            this.isDragging = false;
+          });
+        }
+      });
+    </script>
 </head>
 <body style='margin:0px;overflow:hidden;'> 
 
@@ -12,9 +49,11 @@
         <a-marker preset='hiro'> 
             
            <a-entity
-             gltf-model="earth-like_planet.glb"  scale="0.5 0.5 0.5" 
+             gltf-model="earth-like_planet.glb"
+             scale="0.5 0.5 0.5" 
              position="0 2 0"
              rotation="215 0 0"
+             touch-rotate
             ></a-entity>
 
         </a-marker>
